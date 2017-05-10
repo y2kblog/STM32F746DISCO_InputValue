@@ -61,11 +61,6 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f7xx_it.c</locationURI>
 		</link>
 		<link>
-			<name>Application/User/ugui.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/ugui.c</locationURI>
-		</link>
-		<link>
 			<name>Drivers/CMSIS/system_stm32f7xx.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/system_stm32f7xx.c</locationURI>
@@ -254,6 +249,16 @@
 			<name>Middlewares/FreeRTOS/timers.c</name>
 			<type>1</type>
 			<locationURI>PARENT-7-PROJECT_LOC/Middlewares/Third_Party/FreeRTOS/Source/timers.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/ugui/ugui.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/ugui/ugui.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/ugui/ugui_port.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/ugui/ugui_port.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/ft5336.c</name>

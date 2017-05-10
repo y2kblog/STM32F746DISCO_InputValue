@@ -68,11 +68,6 @@ static UART_HandleTypeDef UartHandleCOM;
 static void StartThread(void const *argument);
 static void uGUIUpdateThread(void const *argument);
 
-// uGUI porting function
-void pset(UG_S16, UG_S16, UG_COLOR);
-UG_RESULT _HW_DrawLine(UG_S16, UG_S16, UG_S16, UG_S16, UG_COLOR);
-UG_RESULT _HW_FillFrame(UG_S16, UG_S16, UG_S16, UG_S16, UG_COLOR);
-
 // System
 static void UART_COM_init(void);
 static void LCD_Config(void);
@@ -128,7 +123,7 @@ int main(void)
     
     /* FreeRTOS : Start task */
     xTaskCreate((TaskFunction_t) StartThread, "StartTask",
-            configMINIMAL_STACK_SIZE+256, NULL, Priority_Normal, &xHandle_StartThread);
+            configMINIMAL_STACK_SIZE, NULL, Priority_Normal, &xHandle_StartThread);
     
     /* FreeRTOS : Start scheduler */
     vTaskStartScheduler();
@@ -149,7 +144,7 @@ static void StartThread(void const *argument)
     
     // Create Task
     xTaskCreate((TaskFunction_t) uGUIUpdateThread, "uGUIUpdateTask",
-            configMINIMAL_STACK_SIZE+512, NULL, Priority_RealTime, &xHandle_uGUIUpdateThread);
+            configMINIMAL_STACK_SIZE, NULL, Priority_RealTime, &xHandle_uGUIUpdateThread);
 
     /* Suspend this thread */
     vTaskSuspend(NULL);
@@ -193,11 +188,6 @@ static void uGUIUpdateThread(void const *argument)
 /* -------------------------------------------------------------------------------- */
 /* -- FreeRTOS                                                                   -- */
 /* -------------------------------------------------------------------------------- */
-void vApplicationIdleHook(void)
-{
-    return;
-}
-
 void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName )
 {
 #ifdef PRINTF_DEBUG_MDOE
@@ -214,30 +204,15 @@ void vApplicationMallocFailedHook(void)
     return;
 }
 
-
-/* -------------------------------------------------------------------------------- */
-/* -- Porting function for uGUI                                                  -- */
-/* -------------------------------------------------------------------------------- */
-inline void pset(UG_S16 x, UG_S16 y, UG_COLOR col)
+void vApplicationTickHook(void)
 {
-    BSP_LCD_DrawPixel((uint16_t)x, (uint16_t)y, (0xFF000000 | (uint32_t) col));
+    return;
 }
 
-/* Hardware accelerator */
-UG_RESULT _HW_DrawLine(UG_S16 x1, UG_S16 y1, UG_S16 x2, UG_S16 y2, UG_COLOR c)
+void vApplicationIdleHook(void)
 {
-    BSP_LCD_SetTextColor(0xFF000000 | c);
-    BSP_LCD_DrawLine(x1, y1, x2, y2);
-    return UG_RESULT_OK;
+    return;
 }
-
-UG_RESULT _HW_FillFrame(UG_S16 x1, UG_S16 y1, UG_S16 x2, UG_S16 y2, UG_COLOR c)
-{
-    BSP_LCD_SetTextColor(0xFF000000 | c);
-    BSP_LCD_FillRect((x1<x2)?x1:x2, (y1<y2)?y1:y2, (x1>=x2)?(x1-x2):(x2-x1), (y1>=y2)?(y1-y2):(y2-y1));
-    return UG_RESULT_OK;
-}
-
 
 /* -------------------------------------------------------------------------------- */
 /* -- System                                                                     -- */
@@ -363,10 +338,7 @@ void assert_failed(uint8_t* file, uint32_t line)
 {
     /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-#ifdef PRINTF_DEBUG_MDOE
-    printf("Wrong parameters value: file %s on line %d\r\n", file, line);
-#endif
-    
+
     /* Infinite loop */
     while (1)
     {}
@@ -410,10 +382,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     switch (GPIO_Pin)
     {
     case TS_INT_PIN:	// Touch screen interrupt
-        LastTouchedTickCount = xTaskGetTickCount();
-        BSP_TS_ITGetStatus();
-        BSP_TS_ITClear();
-        BSP_TS_GetState(&TS_State);
+        if(BSP_TS_ITGetStatus() == TS_OK)
+        {
+            LastTouchedTickCount = xTaskGetTickCount();
+            BSP_TS_ITClear();
+            BSP_TS_GetState(&TS_State);
+        }
         break;
 
     default:

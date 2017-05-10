@@ -9,6 +9,7 @@ extern "C" {
 /* Include system header files -----------------------------------------------*/
 #include <string.h>
 #include <ctype.h>
+#include <float.h>
 
 /* Include user header files -------------------------------------------------*/
 #include "UserCommon.h"
@@ -32,11 +33,33 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 /* Exported enum tag ---------------------------------------------------------*/
 /* Exported struct/union tag -------------------------------------------------*/
+typedef union
+{
+    int32_t InpVal_int32;
+    float InpVal_float;
+} _InpVal_val_union;
+
+typedef struct
+{
+    bool StartUpEvent;
+    bool *p_isCompleteInFuture;
+    bool **pp_isCompleteInFuture;
+    _InpVal_val_union InpVal;
+} _InpVal_t;
+
+// sample
+/* static _InpVal_t sample_t = {false, NULL, &(sample_t.p_isCompleteInFuture), {0} }; */
+
 /* Exported variables --------------------------------------------------------*/
+
+/* FreeRTOS */
+TaskHandle_t xHandle_InputValue;
+
+
 /* Exported function prototypes ----------------------------------------------*/
 void createInputValueWindow(void);
-bool inputInteger_InBackground(bool *, bool **, int32_t, int32_t, int32_t *);
-bool inputDecimal_InBackground(bool *, bool **, float, float, float *);
+bool inputInteger_InBackground(_InpVal_t *, int32_t, int32_t);
+bool inputDecimal_InBackground(_InpVal_t *, float, float);
 
 #ifdef __cplusplus
 }

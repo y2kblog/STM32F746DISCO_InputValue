@@ -1,14 +1,14 @@
 /* -------------------------------------------------------------------------------- */
-/* -- �GUI - Generic GUI module (C)Achim D�bler, 2015                            -- */
+/* -- ｵGUI - Generic GUI module (C)Achim Dler, 2015                            -- */
 /* -------------------------------------------------------------------------------- */
-// �GUI is a generic GUI module for embedded systems.
+// ｵGUI is a generic GUI module for embedded systems.
 // This is a free software that is open for education, research and commercial
 // developments under license policy of following terms.
 //
-//  Copyright (C) 2015, Achim D�bler, all rights reserved.
+//  Copyright (C) 2015, Achim Dler, all rights reserved.
 //  URL: http://www.embeddedlightning.com/
 //
-// * The �GUI module is a free software and there is NO WARRANTY.
+// * The ｵGUI module is a free software and there is NO WARRANTY.
 // * No restriction on use. You can use, modify and redistribute it for
 //   personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.
 // * Redistributions of source code must retain the above copyright notice.
@@ -4697,13 +4697,13 @@ void UG_PutChar( char chr, UG_S16 x, UG_S16 y, UG_COLOR fc, UG_COLOR bc )
    switch ( bt )
    {
       case 0xF6: bt = 0x94; break; // �
-      case 0xD6: bt = 0x99; break; // �
+      case 0xD6: bt = 0x99; break; // ﾖ
       case 0xFC: bt = 0x81; break; // �
-      case 0xDC: bt = 0x9A; break; // �
+      case 0xDC: bt = 0x9A; break; // ﾜ
       case 0xE4: bt = 0x84; break; // �
-      case 0xC4: bt = 0x8E; break; // �
-      case 0xB5: bt = 0xE6; break; // �
-      case 0xB0: bt = 0xF8; break; // �
+      case 0xC4: bt = 0x8E; break; // ﾄ
+      case 0xB5: bt = 0xE6; break; // ｵ
+      case 0xB0: bt = 0xF8; break; // ｰ
    }
 
    yo = y;
@@ -4956,13 +4956,13 @@ void _UG_PutText(UG_TEXT* txt)
          switch ( bt )
          {
             case 0xF6: bt = 0x94; break; // �
-            case 0xD6: bt = 0x99; break; // �
+            case 0xD6: bt = 0x99; break; // ﾖ
             case 0xFC: bt = 0x81; break; // �
-            case 0xDC: bt = 0x9A; break; // �
+            case 0xDC: bt = 0x9A; break; // ﾜ
             case 0xE4: bt = 0x84; break; // �
-            case 0xC4: bt = 0x8E; break; // �
-            case 0xB5: bt = 0xE6; break; // �
-            case 0xB0: bt = 0xF8; break; // �
+            case 0xC4: bt = 0x8E; break; // ﾄ
+            case 0xB5: bt = 0xE6; break; // ｵ
+            case 0xB0: bt = 0xF8; break; // ｰ
          }
          yo = yp;
          bn = char_width;
@@ -7012,5 +7012,7 @@ void _UG_ImageUpdate(UG_WINDOW* wnd, UG_OBJECT* obj)
       obj->state &= ~OBJ_STATE_UPDATE;
    }
 }
+
+
 
 

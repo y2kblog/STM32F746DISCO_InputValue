@@ -1,39 +1,31 @@
-/* Include system header files -----------------------------------------------*/
 /* Include user header files -------------------------------------------------*/
-#include "Window_MainMenu.h"
+#include "Window_Templete.h"
 
 /* Imported variables --------------------------------------------------------*/
 /* Private function macro ----------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-//#define INPUT_MODE_INTEGER
-
 /* Private enum tag ----------------------------------------------------------*/
 static enum BTN_ID_TAG
 {
-    BTN_ID_InputValue = BTN_ID_0
+    BTN_ID_Close = BTN_ID_0
 };
 
 static enum TXB_ID_TAG
 {
-    TXB_ID_Value = TXB_ID_0
+    TXB_ID_Test = TXB_ID_0
 };
 
 /* Private variables ---------------------------------------------------------*/
-/* "this" pointer */
-static TaskHandle_t* pthis_xHandle = &xHandle_MainMenu;
-static UG_WINDOW*    pthis_wnd     = &wnd_MainMenu;
-
-// uGUI
-static UG_OBJECT    obj_this_wnd[MAINMENU_uGUI_OBJECTS_NUM];
-static UG_BUTTON    btn_InputValue;
-static UG_TEXTBOX   txb_Value;
+/* uGUI */
+static UG_OBJECT    obj_this_wnd[TEMPLETE_uGUI_OBJECTS_NUM];
+static UG_BUTTON    btn_Test;
+static UG_TEXTBOX   txb_Test;
 
 /* thread control */
 static bool needFinalize;  // This flag is used in "WindowControlThread" and "window_callback" function
 
-// Value input window
-static _InpVal_t InputValue_t = {false, NULL, &(InputValue_t.p_isCompleteInFuture), {0} };
-char strInputValue[INPUTVALUE_DIGITS + 2];
+/* "this" pointer */
+static TaskHandle_t* pthis_xHandle = &xHandle_MainMenu;
+static UG_WINDOW*    pthis_wnd     = &wnd_Templete;
 
 /* Private function prototypes -----------------------------------------------*/
 static void WindowControlThread(void const *argument);
@@ -56,30 +48,30 @@ void createMainMenuWindow(void)
     UG_WindowSetTitleTextFont(pthis_wnd, &FONT_12X20);
 	
     // Create buttons
-    id_buf = BTN_ID_InputValue;
-    UG_ButtonCreate(pthis_wnd, &btn_InputValue, id_buf,
+    id_buf = BTN_ID_Close;
+    UG_ButtonCreate(pthis_wnd, &btn_Test, id_buf,
             UG_WindowGetInnerWidth(pthis_wnd)  * 0 / 2 + MAINMENU_BUTTON_GAP,
             UG_WindowGetInnerHeight(pthis_wnd) * 1 / 4 + MAINMENU_BUTTON_GAP,
             UG_WindowGetInnerWidth(pthis_wnd)  * 1 / 2 - MAINMENU_BUTTON_GAP,
             UG_WindowGetInnerHeight(pthis_wnd) * 2 / 4 - MAINMENU_BUTTON_GAP );
     UG_ButtonSetFont(pthis_wnd, id_buf, &FONT_12X20);
-    UG_ButtonSetText(pthis_wnd, id_buf, "Input value");
+    UG_ButtonSetText(pthis_wnd, id_buf, "Close");
 	
     // Create textboxes
-    id_buf = TXB_ID_Value;
-    UG_TextboxCreate(pthis_wnd, &txb_Value, id_buf,
+    id_buf = TXB_ID_Test;
+    UG_TextboxCreate(pthis_wnd, &txb_Test, id_buf,
             UG_WindowGetInnerWidth(pthis_wnd)  * 0 / 2 + 0,
             UG_WindowGetInnerHeight(pthis_wnd) * 0 / 4 + 0,
-            UG_WindowGetInnerWidth(pthis_wnd)  * 2 / 2 - 0,
+            UG_WindowGetInnerWidth(pthis_wnd)  * 1 / 2 - 0,
             UG_WindowGetInnerHeight(pthis_wnd) * 1 / 4 - 0 );
     UG_TextboxSetFont(pthis_wnd, id_buf, &FONT_12X20);
-    UG_TextboxSetText(pthis_wnd, id_buf, "0");
+    UG_TextboxSetText(pthis_wnd, id_buf, "Hello world!");
     UG_TextboxSetAlignment(pthis_wnd, id_buf, ALIGN_CENTER_LEFT);
     
-	UG_WindowShow(pthis_wnd);
+	//UG_WindowShow(pthis_wnd);
     
-    xTaskCreate( (TaskFunction_t)WindowControlThread, "MainMenuTask",
-    		configMINIMAL_STACK_SIZE+256, NULL, Priority_Low, pthis_xHandle);
+    xTaskCreate( (TaskFunction_t)WindowControlThread, "TempleteTask",
+    		configMINIMAL_STACK_SIZE+100, NULL, Priority_High, pthis_xHandle);
 }
 
 
@@ -95,14 +87,17 @@ static void WindowControlThread(void const *argument)
 #endif
     
 	/* Variables initialization ------------------------------------*/
-    bool shouldSuspend  = false;    /* Main Menu thread must not be suspended */
+    //portTickType xLastWakeTime = xTaskGetTickCount();
+
+    bool shouldSuspend  = true;     /* Set this flag "false" if this thread state must not be suspended */
     bool needInitialize = false;
     	 needFinalize   = false;    /* only "needFinalize" flag is changed from "window_callback" function */
 	
     while (1)
-    {
-    	/* Thread flow */
-    	vTaskDelay(MAINMENU_UPDATE_MS);
+	{
+		/* Thread flow */
+		//vTaskDelayUntil(&xLastWakeTime, TEMPELTE_UPDATE_MS);
+		vTaskDelay(TEMPLETE_UPDATE_MS);
 		
     	if(shouldSuspend)
     	{
@@ -146,11 +141,12 @@ void window_callback(UG_MESSAGE* msg)
         {
             switch (msg->sub_id)
             {
-            case BTN_ID_InputValue:
+            case BTN_ID_Close:
 #ifdef PRINTF_DEBUG_MDOE
-                printf("Push InputValue button\r\n");
+                printf("Pushed Close button\r\n");
 #endif
-                InputValue_t.StartUpEvent = true;
+                needFinalize = true;  // <- Finalize and make "WindowControlThread()" state susupend
+                //UG_WindowShow(&wnd_Templete2);
                 break;
                 
             default:
@@ -180,21 +176,7 @@ static void initialize(void)
 /* ---------------------------------------------------------------- */
 static void execute(void)
 {
-#ifdef INPUT_MODE_INTEGER
-    //if(inputInteger_InBackground(&InputValue_t, /* min = */ 10, /* max = */ INT32_MAX) )
-    if(inputInteger_InBackground(&InputValue_t, /* min = */ 100, /* max = */ 10000) )
-    {
-        sprintf(strInputValue, "%d", (int)InputValue_t.InpVal.InpVal_int32);
-        UG_TextboxSetText(pthis_wnd, TXB_ID_Value, strInputValue);
-    }
-#else
-    //if(inputDecimal_InBackground(&InputValue_t, /* min = */ FLT_MIN, /* max = */ FLT_MAX) )
-    if(inputDecimal_InBackground(&InputValue_t, /* min = */ -100.0f, /* max = */ 100.0f) )
-    {
-        sprintf(strInputValue, "%g", InputValue_t.InpVal.InpVal_float);
-        UG_TextboxSetText(pthis_wnd, TXB_ID_Value, strInputValue);
-    }
-#endif
+    
 }
 
 /* ---------------------------------------------------------------- */

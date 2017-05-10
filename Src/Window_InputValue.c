@@ -35,9 +35,6 @@ static enum TXB_ID_TAG
 };
 
 /* Private variables ---------------------------------------------------------*/
-/* FreeRTOS */
-static TaskHandle_t xHandle_InputValue;
-
 /* uGUI */
 static UG_WINDOW wnd_InputValue;
 
@@ -297,22 +294,21 @@ void createInputValueWindow(void)
 
 // return value -> true : update
 // Arrange of "Future pattern" : Future instance is "*p_isCompleteInFuture"
-bool inputInteger_InBackground(bool *p_StartUpEvent, bool **pp_isCompleteInFuture,
-        int32_t min, int32_t max, int32_t *p_InputValue)
+bool inputInteger_InBackground(_InpVal_t *p, int32_t min, int32_t max)
 {
     // "p_StartUpEvent" is normally set "true" in callback function
-    if(*p_StartUpEvent)
+    if(p->StartUpEvent)
     {
-        *p_StartUpEvent = false;
-        *pp_isCompleteInFuture = requestInputIntegerInRange(min, max, p_InputValue);
+        p->StartUpEvent = false;
+        *(p->pp_isCompleteInFuture) = requestInputIntegerInRange(min, max, &(p->InpVal.InpVal_int32) );
     }
     
-    if(*pp_isCompleteInFuture != NULL)
+    if(*(p->pp_isCompleteInFuture) != NULL)
     {
-        if(**pp_isCompleteInFuture)
+        if(**(p->pp_isCompleteInFuture))
         {
-            **pp_isCompleteInFuture = false;
-            *pp_isCompleteInFuture = NULL;
+            **(p->pp_isCompleteInFuture) = false;
+            *(p->pp_isCompleteInFuture) = NULL;
             if(hasUpdatedInputValue())
                 return true;
         }
@@ -320,22 +316,21 @@ bool inputInteger_InBackground(bool *p_StartUpEvent, bool **pp_isCompleteInFutur
     return false;
 }
 
-bool inputDecimal_InBackground(bool *p_StartUpEvent, bool **pp_isCompleteInFuture,
-        float min, float max, float *p_InputValue)
+bool inputDecimal_InBackground(_InpVal_t *p, float min, float max)
 {
     // "p_StartUpEvent" is normally set "true" in callback function
-    if(*p_StartUpEvent)
+    if(p->StartUpEvent)
     {
-        *p_StartUpEvent = false;
-        *pp_isCompleteInFuture = requestInputDecimalInRange(min, max, p_InputValue);
+        p->StartUpEvent = false;
+        *(p->pp_isCompleteInFuture) = requestInputDecimalInRange(min, max, &(p->InpVal.InpVal_float) );
     }
     
-    if(*pp_isCompleteInFuture != NULL)
+    if(*(p->pp_isCompleteInFuture) != NULL)
     {
-        if(**pp_isCompleteInFuture)
+        if(**(p->pp_isCompleteInFuture))
         {
-            **pp_isCompleteInFuture = false;
-            *pp_isCompleteInFuture = NULL;
+            **(p->pp_isCompleteInFuture) = false;
+            *(p->pp_isCompleteInFuture) = NULL;
             if(hasUpdatedInputValue())
                 return true;
         }
@@ -682,7 +677,21 @@ static bool* requestInputIntegerInRange(int32_t min, int32_t max, int32_t *Input
         UG_ButtonSetAlternateForeColor(pthis_wnd, BTN_ID_Minus_Sign, C_WHITE_SMOKE);
     }
     
-    sprintf(strValueRange, "Range [%d, %d]", (int)Int32MinValue, (int)Int32MaxValue);
+    if(Int32MinValue == INT32_MIN)
+    {
+        if(Int32MaxValue == INT32_MAX)
+            sprintf(strValueRange, "Range [-inf, +inf]");
+        else
+            sprintf(strValueRange, "Range [-inf, %d]", (int)Int32MaxValue);
+    }
+    else
+    {
+        if(Int32MaxValue == INT32_MAX)
+            sprintf(strValueRange, "Range [%d, +inf]", (int)Int32MinValue);
+        else
+            sprintf(strValueRange, "Range [%d, %d]", (int)Int32MinValue, (int)Int32MaxValue);
+    }
+    //sprintf(strValueRange, "Range [%d, %d]", (int)Int32MinValue, (int)Int32MaxValue);
     UG_TextboxSetText(pthis_wnd, TXB_ID_ValueRange, strValueRange);
     
     vTaskResume(*pthis_xHandle);
@@ -739,7 +748,21 @@ static bool* requestInputDecimalInRange(float min, float max, float *InputValue)
         UG_ButtonSetAlternateForeColor(pthis_wnd, BTN_ID_Minus_Sign, C_WHITE_SMOKE);
     }
     
-    sprintf(strValueRange, "Range [%g, %g]", DecimalMinValue, DecimalMaxValue);
+    if (DecimalMinValue == FLT_MIN)
+    {
+        if (DecimalMaxValue == FLT_MAX)
+            sprintf(strValueRange, "Range [-inf, +inf]");
+        else
+            sprintf(strValueRange, "Range [-inf, %g]", DecimalMaxValue);
+    }
+    else
+    {
+        if (DecimalMaxValue == FLT_MAX)
+            sprintf(strValueRange, "Range [%g, +inf]", DecimalMinValue);
+        else
+            sprintf(strValueRange, "Range [%g, %g]", DecimalMinValue, DecimalMaxValue);
+    }
+    //sprintf(strValueRange, "Range [%g, %g]", DecimalMinValue, DecimalMaxValue);
     UG_TextboxSetText(pthis_wnd, TXB_ID_ValueRange, strValueRange);
     
     vTaskResume(*pthis_xHandle);
