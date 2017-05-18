@@ -22,7 +22,7 @@ extern "C" {
 /* -- User setting Configuration                                 -- */
 /* ---------------------------------------------------------------- */
 #define INPUTVALUE_WINDOW_TITLE             "Input value"
-#define uGUI_INPUTVALUE_OBJECTS_NUM         20
+#define uGUI_INPUTVALUE_OBJECTS_NUM         18
 #define INPUTVALUE_UPDATE_MS                50
 #define INPUTVALUE_BUTTON_GAP_PIXEL         3
 #define INPUTVALUE_DIGITS                   15

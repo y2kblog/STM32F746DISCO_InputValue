@@ -5,7 +5,7 @@
 /* Imported variables --------------------------------------------------------*/
 /* Private function macro ----------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-#define STR_RANGE_INVALID   "Range invalid"
+const char str_invalid_range[] = "Invalid range";
 
 /* Private enum tag ----------------------------------------------------------*/
 static enum BTN_ID_TAG
@@ -400,7 +400,7 @@ static void window_callback(UG_MESSAGE* msg)
         if (msg->id == OBJ_TYPE_BUTTON)
         {
             bool isInvalid = false;
-            if(strcmp(strValue, STR_RANGE_INVALID) == 0)
+            if(strcmp(strValue, str_invalid_range) == 0)
             {
                 isInvalid = true;
                 init_strValue();
@@ -489,8 +489,8 @@ static void window_callback(UG_MESSAGE* msg)
                     if( (Int32Value < Int32MinValue) || (Int32Value > Int32MaxValue) )
                     {
                         // Value range invalid
-                        sprintf(strValue, STR_RANGE_INVALID);
-                        UG_TextboxSetAlignment(pthis_wnd, TXB_ID_DisplayValue, ALIGN_CENTER_LEFT);
+                        sprintf(strValue, str_invalid_range);
+                        UG_TextboxSetAlignment(pthis_wnd, TXB_ID_DisplayValue, ALIGN_CENTER);
                         UG_TextboxSetForeColor(pthis_wnd, TXB_ID_DisplayValue, C_RED);
                         break;
                     }
@@ -502,8 +502,8 @@ static void window_callback(UG_MESSAGE* msg)
                     if( (DecimalValue < DecimalMinValue) || (DecimalValue > DecimalMaxValue) )
                     {
                         // Value range invalid
-                        sprintf(strValue, STR_RANGE_INVALID);
-                        UG_TextboxSetAlignment(pthis_wnd, TXB_ID_DisplayValue, ALIGN_CENTER_LEFT);
+                        sprintf(strValue, str_invalid_range);
+                        UG_TextboxSetAlignment(pthis_wnd, TXB_ID_DisplayValue, ALIGN_CENTER);
                         UG_TextboxSetForeColor(pthis_wnd, TXB_ID_DisplayValue, C_RED);
                         break;
                     }

@@ -113,7 +113,6 @@ int main(void)
 
     /* uGUI Init */
     UG_Init(&gui, (void (*)(UG_S16, UG_S16, UG_COLOR)) pset, BSP_LCD_GetXSize(), BSP_LCD_GetYSize());
-    UG_FillScreen(C_WHITE);
 
     /* uGUI hardware accelerator */
     UG_DriverRegister(DRIVER_DRAW_LINE, (void*) _HW_DrawLine);
@@ -121,6 +120,9 @@ int main(void)
     UG_DriverEnable(DRIVER_DRAW_LINE);
     UG_DriverEnable(DRIVER_FILL_FRAME);
     
+    /* Clear display */
+    UG_FillScreen(C_WHITE);
+
     /* FreeRTOS : Start task */
     xTaskCreate((TaskFunction_t) StartThread, "StartTask",
             configMINIMAL_STACK_SIZE, NULL, Priority_Normal, &xHandle_StartThread);
@@ -129,7 +131,7 @@ int main(void)
     vTaskStartScheduler();
 
     /* We should never get here as control is now taken by the scheduler */
-    while (1);
+    for(;;);
 }
 
 /**
@@ -140,7 +142,9 @@ int main(void)
 static void StartThread(void const *argument)
 {
     createMainMenuWindow();
+    vTaskDelay(100);
     createInputValueWindow();
+    while (eTaskGetState(xHandle_InputValue)    != eSuspended);
     
     // Create Task
     xTaskCreate((TaskFunction_t) uGUIUpdateThread, "uGUIUpdateTask",
@@ -150,7 +154,7 @@ static void StartThread(void const *argument)
     vTaskSuspend(NULL);
 
     /* Infinite loop */
-    while (1);
+    for(;;);
 }
 
 static void uGUIUpdateThread(void const *argument)
@@ -201,17 +205,14 @@ void vApplicationMallocFailedHook(void)
 #ifdef PRINTF_DEBUG_MDOE
     printf("FreeRTOS memory allocation failed error\r\n");
 #endif
-    return;
 }
 
 void vApplicationTickHook(void)
 {
-    return;
 }
 
 void vApplicationIdleHook(void)
 {
-    return;
 }
 
 /* -------------------------------------------------------------------------------- */
